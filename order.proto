@@ -5,7 +5,7 @@ option go_package = "github.com/B4rt0n1/protoB/order";
 import "google/protobuf/timestamp.proto";
 
 service OrderTrackingService {
-  rpc SubscribeToOrderUpdates(OrderRequest) returns (stream OrderStatusUpdate); // 
+  rpc SubscribeToOrderUpdates(OrderRequest) returns (stream OrderStatusUpdate);
 }
 
 message OrderRequest {
