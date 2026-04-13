@@ -43,14 +43,14 @@ jobs:
           
           # Compile Payment Proto
           protoc -I=repo-a \
-            --go_out=repo-b --go_opt=paths=source_relative \
-            --go-grpc_out=repo-b --go-grpc_opt=paths=source_relative \
+            --go_out=repo-b/payment --go_opt=paths=source_relative \
+            --go-grpc_out=repo-b/payment --go-grpc_opt=paths=source_relative \
             repo-a/payment.proto
             
           # Compile Order Proto
           protoc -I=repo-a \
-            --go_out=repo-b --go_opt=paths=source_relative \
-            --go-grpc_out=repo-b --go-grpc_opt=paths=source_relative \
+            --go_out=repo-b/order --go_opt=paths=source_relative \
+            --go-grpc_out=repo-b/order --go-grpc_opt=paths=source_relative \
             repo-a/order.proto
 
       - name: Push to Repo B
