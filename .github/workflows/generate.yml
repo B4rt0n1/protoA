@@ -1,0 +1,69 @@
+name: Generate and Push Protos
+
+on:
+  push:
+    branches:
+      - main # Runs every time you push to the main branch
+    paths:
+      - '**/*.proto' # Only runs if a .proto file was changed
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Proto Repository (Repo A)
+        uses: actions/checkout@v3
+        with:
+          path: repo-a
+
+      - name: Checkout Generated Repository (Repo B)
+        uses: actions/checkout@v3
+        with:
+          repository: B4rt0n10/protoB
+          token: ${{ secrets.REPO_B_PAT }}
+          path: repo-b
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: Install Protoc & Go Plugins
+        run: |
+          sudo apt-get install -y protobuf-compiler
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+
+      - name: Compile Protos
+        run: |
+          # Create directories in Repo B if they don't exist
+          mkdir -p repo-b/order
+          mkdir -p repo-b/payment
+          
+          # Compile Payment Proto
+          protoc -I=repo-a \
+            --go_out=repo-b --go_opt=paths=source_relative \
+            --go-grpc_out=repo-b --go-grpc_opt=paths=source_relative \
+            repo-a/payment.proto
+            
+          # Compile Order Proto
+          protoc -I=repo-a \
+            --go_out=repo-b --go_opt=paths=source_relative \
+            --go-grpc_out=repo-b --go-grpc_opt=paths=source_relative \
+            repo-a/order.proto
+
+      - name: Push to Repo B
+        run: |
+          cd repo-b
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git add .
+          
+          # Only commit if there are changes
+          if git diff-index --quiet HEAD --; then
+            echo "No changes to commit."
+          else
+            git commit -m "Auto-generated protos from commit ${{ github.sha }}"
+            git push
+          fi
