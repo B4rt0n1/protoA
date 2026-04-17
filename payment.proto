@@ -14,6 +14,18 @@ message PaymentResponse {
   string transaction_id = 2;
 }
 
+// --- NEW CODE BELOW ---
+
+message ListPaymentsRequest {
+  int64 min_amount = 1; // in cents, 0 = unlimited
+  int64 max_amount = 2; // in cents, 0 = unlimited
+}
+
+message ListPaymentsResponse {
+  repeated PaymentResponse payments = 1;
+}
+
 service PaymentService {
   rpc ProcessPayment(PaymentRequest) returns (PaymentResponse);
+  rpc ListPayments(ListPaymentsRequest) returns (ListPaymentsResponse); // new
 }
