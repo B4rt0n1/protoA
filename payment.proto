@@ -1,22 +1,19 @@
 syntax = "proto3";
+
 package payment;
 
 option go_package = "github.com/B4rt0n1/protoB/payment";
- 
-service PaymentService {
-  rpc ProcessPayment(PaymentRequest) returns (PaymentResponse);
+
+message PaymentRequest {
+  string order_id = 1;
+  int64 amount = 2;
 }
 
-message ListPaymentsRequest {
-  int64 min_amount = 1;
-  int64 max_amount = 2;
-}
-
-message ListPaymentsResponse {
-  repeated PaymentResponce payments = 1;
+message PaymentResponse {
+  string status = 1;
+  string transaction_id = 2;
 }
 
 service PaymentService {
   rpc ProcessPayment(PaymentRequest) returns (PaymentResponse);
-  rpc ListPayments(ListPaymentsRequest) returns (ListPaymentsResponse);
 }
